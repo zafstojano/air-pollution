@@ -59,7 +59,7 @@ class SimpleSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
+        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
 
         return model
         
@@ -127,7 +127,7 @@ class StackedEncoderSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
+        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
 
         return model
         
@@ -194,7 +194,7 @@ class BiStackedEncoderSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
+        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
 
         return model
 
@@ -260,7 +260,7 @@ class StackedDecoderSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
+        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
 
         return model
         
@@ -334,7 +334,7 @@ class StackedSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
+        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
 
         return model
         
@@ -408,7 +408,7 @@ class BiStackedSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
+        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
 
         return model
         

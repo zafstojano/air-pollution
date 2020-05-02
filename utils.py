@@ -6,6 +6,13 @@ def masked_mse(y_true, y_pred):
                   axis=-1) / (1 + K.sum((1-y_true[:, :, 1]), axis=-1))
 
 
+def seq2seq_masked_mse(y_true, y_pred):
+    return K.mean(K.mean(((y_true[:, :, 0] - y_pred[:, :, 0]) ** 2) * (1-y_true[:, :, 1]),
+                         axis=0))
+
+def attention_masked_mse(y_true, y_pred):
+    return K.mean(((y_true[:, 0] - y_pred[:, 0]) ** 2) * (1-y_true[:, 1]))
+
 def softmax(x, axis=1):
     """Softmax activation function.
     # Arguments

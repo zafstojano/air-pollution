@@ -4,13 +4,19 @@ from datetime import datetime
 
 
 class LossPrintingCallback(tf.keras.callbacks.Callback):
+    def __init__(self, Ty):
+        self.Ty = Ty
+        
     def on_epoch_end(self, epoch, logs=None):
-        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]\tepoch: {epoch}\tloss: {round(logs["loss"],4)}\tval_loss: {round(logs["val_loss"], 4)}')
+        """
+        Prints the average of the train and validation losses of the output units.
+        """
+        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]\tepoch: {epoch}\tloss: {round(logs["loss"]/self.Ty, 4)}\tval_loss: {round(logs["val_loss"]/self.Ty, 4)}')
+            
 
-
-def masked_mse(y_true, y_pred):
-    return K.sum(((y_true[:, :, 0] - y_pred[:, :, 0]) ** 2) * (1-y_true[:, :, 1]), 
-                  axis=-1) / (1 + K.sum((1-y_true[:, :, 1]), axis=-1))
+# def masked_mse(y_true, y_pred):
+#     return K.sum(((y_true[:, :, 0] - y_pred[:, :, 0]) ** 2) * (1-y_true[:, :, 1]), 
+#                   axis=-1) / (1 + K.sum((1-y_true[:, :, 1]), axis=-1))
 
 
 def seq2seq_masked_mse(y_true, y_pred):

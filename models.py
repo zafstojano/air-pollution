@@ -20,59 +20,7 @@ from datetime import datetime
 from utils import *
 
 
-class PlainSeq2Seq(HyperModel):
-    def __init__(self, Tx, Ty, encoder_input_dim, 
-                 decoder_input_dim, decoder_output_dim):
-        self.Tx = Tx
-        self.Ty = Ty
-        self.encoder_input_dim = encoder_input_dim
-        self.decoder_input_dim = decoder_input_dim
-        self.decoder_output_dim = decoder_output_dim
-
-        
-    def build(self, hp):
-        # ------------------- SHARED LAYERS ---------------------
-        latent_dim = hp.Int('latent_dim', min_value=32, max_value=64, step=16)
-        
-        encoder_lstm = LSTM(latent_dim, return_state=True, name='encoder_lstm')
-        decoder_lstm = LSTM(latent_dim, return_sequences=True, 
-                            return_state=True, name='decoder_lstm')
-        decoder_dense = Dense(self.decoder_output_dim, 
-                              activation='linear', name='decoder_dense')
-        dense_dropout = Dropout(rate=hp.Float('dense_dropout', 0, 0.5, 
-                                step=0.1, default=0.5))
-        
-        # ---------------------- MODEL ------------------------
-        # Define the inputs for the encoder
-        encoder_inputs = Input(shape=(self.Tx, self.encoder_input_dim), 
-                               name='encoder_inputs')
-
-        # We discard output and keep the states only.
-        _, h, c = encoder_lstm(encoder_inputs)
-
-        # Define the inputs for the decoder
-        decoder_inputs = Input(shape=(self.Ty, self.decoder_input_dim), 
-                               name='decoder_inputs')
-
-        # Obtain all the outputs from the decoder (return_sequences = True)
-        decoder_outputs, _, _  = decoder_lstm(decoder_inputs, initial_state=[h, c])
-
-        # Apply dropout
-        decoder_outputs = dense_dropout(decoder_outputs)
-
-        # Apply dense 
-        decoder_outputs = decoder_dense(decoder_outputs)
-
-        model = Model(inputs=[encoder_inputs, decoder_inputs], 
-                      outputs=decoder_outputs)
-        optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
-                                                sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
-
-        return model
-        
-
-class StackedSeq2Seq(HyperModel):
+class StandardSeq2Seq(HyperModel):
     def __init__(self, Tx, Ty, encoder_input_dim, 
                  decoder_input_dim, decoder_output_dim):
         self.Tx = Tx
@@ -101,31 +49,26 @@ class StackedSeq2Seq(HyperModel):
                                 step=0.1, default=0.5))
 
         # ---------------------- MODEL ------------------------
-        # Define the inputs for the encoder
         encoder_inputs = Input(shape=(self.Tx, self.encoder_input_dim), 
-                               name='encoder_inputs')
-        
-        # Obtain the outputs from the first encoder layer
-        encoder_outputs = encoder_lstm_1(encoder_inputs) 
-        
-        # Pass the outputs through a dropout layer before 
-        # feeding them to the next LSTM layer
-        encoder_outputs = seq_dropout(encoder_outputs)
-        
-        # We discard the output and keep the states only.
-        _, h, c = encoder_lstm_2(encoder_outputs)
+                         name='encoder_inputs')
 
-        # Define the inputs for the decoder
+        x = encoder_inputs
+        
+        # This hyperparameter determines whether we should stack two LSTM layers
+        if hp.Boolean('stacked'):
+        	# This hyperparameter determines whether the first layer should be bidirectional
+        	encoder_lstm_1 = hp.Choice('bidirectional', [encoder_lstm_1, 
+        												 Bidirectional(encoder_lstm_1)])
+        	x = encoder_lstm_1(x)
+        	x = seq_dropout(x)
+        
+        _, h, c = encoder_lstm_2(x)
+
         decoder_inputs = Input(shape=(self.Ty, self.decoder_input_dim), 
                                name='decoder_inputs')
 
-        # Obtain all the outputs from the decoder (return_sequences = True)
         decoder_outputs, _, _  = decoder_lstm(decoder_inputs, initial_state=[h, c])
-
-        # Apply dropout
         decoder_outputs = dense_dropout(decoder_outputs)
-
-        # Apply dense 
         decoder_outputs = decoder_dense(decoder_outputs)
 
         model = Model(inputs=[encoder_inputs, decoder_inputs], 
@@ -136,70 +79,6 @@ class StackedSeq2Seq(HyperModel):
 
         return model
         
-
-class BiStackedSeq2Seq(HyperModel):
-    def __init__(self, Tx, Ty, encoder_input_dim, 
-                 decoder_input_dim, decoder_output_dim):
-        self.Tx = Tx
-        self.Ty = Ty
-        self.encoder_input_dim = encoder_input_dim
-        self.decoder_input_dim = decoder_input_dim
-        self.decoder_output_dim = decoder_output_dim
-
-        
-    def build(self, hp):
-        # ------------------- SHARED LAYERS ---------------------
-        latent_dim = hp.Int('latent_dim', min_value=32, max_value=64, step=16)
-        
-        encoder_lstm_1 = Bidirectional(LSTM(latent_dim, return_sequences=True, 
-                              name='encoder_lstm_1'), merge_mode='concat')
-        encoder_lstm_2 = LSTM(latent_dim, return_state=True, 
-                              name='encoder_lstm_2')
-        decoder_lstm = LSTM(latent_dim, return_sequences=True, 
-                            return_state=True, name='decoder_lstm')
-        decoder_dense = Dense(self.decoder_output_dim, 
-                              activation='linear', name='decoder_dense')
-        seq_dropout = Dropout(rate=hp.Float('seq_dropout', 0, 0.5, 
-                                step=0.1, default=0.5))
-        dense_dropout = Dropout(rate=hp.Float('dense_dropout', 0, 0.5, 
-                                step=0.1, default=0.5))
-
-        # ---------------------- MODEL ------------------------
-        # Define the inputs for the encoder
-        encoder_inputs = Input(shape=(self.Tx, self.encoder_input_dim), 
-                               name='encoder_inputs')
-        
-        # Obtain the outputs from the first encoder layer
-        encoder_outputs = encoder_lstm_1(encoder_inputs) 
-        
-        # Pass the outputs through a dropout layer before 
-        # feeding them to the next LSTM layer
-        encoder_outputs = seq_dropout(encoder_outputs)
-        
-        # We discard the output and keep the states only.
-        _, h, c = encoder_lstm_2(encoder_outputs)
-
-        # Define the inputs for the decoder
-        decoder_inputs = Input(shape=(self.Ty, self.decoder_input_dim), 
-                               name='decoder_inputs')
-
-        # Obtain all the outputs from the decoder (return_sequences = True)
-        decoder_outputs, _, _  = decoder_lstm(decoder_inputs, initial_state=[h, c])
-
-        # Apply dropout
-        decoder_outputs = dense_dropout(decoder_outputs)
-
-        # Apply dense 
-        decoder_outputs = decoder_dense(decoder_outputs)
-
-        model = Model(inputs=[encoder_inputs, decoder_inputs], 
-                      outputs=decoder_outputs)
-        optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
-                                                sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
-
-        return model  
-    
 
 def one_step_attention(encoder_outputs, h_prev, attention_repeat, 
                        attention_concatenate, attention_dense_1,
@@ -232,18 +111,13 @@ def one_step_attention(encoder_outputs, h_prev, attention_repeat,
     # Repeat h_prev to be of shape (m, Tx, decoder_latent_dim) 
     h_prev = attention_repeat(h_prev)
     
-    # Concatenate the encoder outputs to the repeated vector
     concat = attention_concatenate([encoder_outputs, h_prev])
        
-    # Compute the energies
     energies = attention_dense_1(concat)
     energies = attention_dense_2(energies)
 
-    # Compute the alphas by applying softmax on the energies
     alphas = attention_activation(energies)
 
-    # Compute the context vector by dotting the alphas and 
-    # the encoder outputs
     context = attention_dot([alphas, encoder_outputs])
     
     return context
@@ -319,14 +193,12 @@ class AttentiveSeq2Seq(HyperModel):
         encoder_inputs = Input(shape=(self.Tx, self.encoder_input_dim), 
                                name='encoder_inputs')
         encoder_outputs = encoder_lstm_1(encoder_inputs)
+        encoder_outputs = seq_dropout(encoder_outputs)
 
         # This hyperparameter determines whether we should stack two BiLSTM layers
         if hp.Boolean('stacked'):
-        	# Apply dropout
-        	encoder_outputs = seq_dropout(encoder_outputs)
-
-        	# Apply another Bidirectional LSTM layer
         	encoder_outputs = encoder_lstm_2(encoder_outputs)
+        	encoder_outputs = seq_dropout(encoder_outputs)
 
         decoder_inputs = Input(shape=(self.Ty, self.decoder_input_dim), 
                                name='decoder_inputs')
@@ -345,9 +217,9 @@ class AttentiveSeq2Seq(HyperModel):
         # y is a slice of the decoder inputs
         y = Lambda(lambda y: y[:, 0, :])(decoder_inputs)
         y = K.expand_dims(y, axis=1)
-        # z is a concatenation of x and y
+        # Concatenate both by the last axis
         z = Concatenate(axis=-1)([x, y])
-        # we feed the dummy tensor in order to obtain a sample tensor of h and c
+        # Feed the dummy tensor in order to obtain a sample tensor of h and c
         _, h, c = decoder_lstm(z)
         # create tensors of zeros using the shapes of the previous dummies
         h = Lambda(lambda x: x, name='h0')(K.zeros_like(h))
@@ -357,7 +229,6 @@ class AttentiveSeq2Seq(HyperModel):
         outputs = []
 
         for t in range(self.Ty):
-            # Perform attention for one timestep
             context = one_step_attention(encoder_outputs, h, attention_repeat, 
                                          attention_concatenate, attention_dense_1,
                                          attention_dense_2, attention_activation,
@@ -368,16 +239,10 @@ class AttentiveSeq2Seq(HyperModel):
             decoder_input = K.expand_dims(decoder_input, axis=1)
             full_decoder_input = decoder_concatenate([context, decoder_input])
 
-            # Apply post-attention LSTM
             h, _, c = decoder_lstm(full_decoder_input, initial_state=[h, c])
-            
-            # Apply dropout
             decoder_output = dense_dropout(h)
-            
-            # Apply dense to compute the output
             decoder_output = decoder_dense(decoder_output)
             
-            # Append the the model's outputs
             outputs.append(decoder_output)
 
         model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)

@@ -70,7 +70,7 @@ class PlainSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
+        model.compile(optimizer=optimizer, loss=masked_mse)
 
         return model
         
@@ -138,7 +138,7 @@ class StackedSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
+        model.compile(optimizer=optimizer, loss=masked_mse)
 
         return model
         
@@ -205,7 +205,7 @@ class BiStackedSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', 1e-4, 1e-2, 
                                                 sampling='log'))
-        model.compile(optimizer=optimizer, loss=seq2seq_masked_mse)
+        model.compile(optimizer=optimizer, loss=masked_mse)
 
         return model  
     
@@ -216,26 +216,26 @@ def one_step_attention(encoder_outputs, h_prev, attention_repeat,
                        attention_dot):
     """
     Performs one step of attention: Outputs a context vector computed 
-    as a dot product of the attention weights "alphas" and the outputs
+    as dot product of the attention weights "alphas" and the outputs
     of the encoder.
     
     Arguments:
-    encoder_outputs -- outputs of the encoder, numpy-array of shape 
-                       (m, Tx, 2*encoder_latent_dim)
-    h_prev -- previous hidden state of the decoder LSTM, numpy-array 
-              of shape (m, decoder_latent_dim)
-    attention_repeat -- predefined repeat layer for the attention
-    attention_concatenate -- predefined concatenate layer for the 
-                             attention
-    attention_dense_1 -- predefined dense layer for the attention
-    attention_dense_2 -- predefined dense layer for the attention
-    attention_activation -- predefined activation layer for the 
-                            attention
-    attention_dot -- predefined dot layer for the attention
+	    encoder_outputs -- outputs of the encoder, numpy-array of shape 
+	                       (m, Tx, 2*encoder_latent_dim)
+	    h_prev -- previous hidden state of the decoder LSTM, numpy-array 
+	              of shape (m, decoder_latent_dim)
+	    attention_repeat -- predefined repeat layer for the attention
+	    attention_concatenate -- predefined concatenate layer for the 
+	                             attention
+	    attention_dense_1 -- predefined dense layer for the attention
+	    attention_dense_2 -- predefined dense layer for the attention
+	    attention_activation -- predefined activation layer for the 
+	                            attention
+	    attention_dot -- predefined dot layer for the attention
     
     
     Returns:
-    context -- context vector, input to the decoder LSTM cell
+    	context -- context vector, input to the decoder LSTM cell
     """
     
     # Repeat h_prev to be of shape (m, Tx, decoder_latent_dim) 
@@ -266,11 +266,11 @@ class AttentiveSeq2Seq(HyperModel):
         Constructor for the derived HyperModel class
         
         Arguments:
-        Tx -- length of the input sequence
-        Ty -- length of the output sequence
-        encoder_input_dim -- length of input vector for the encoder
-        decoder_input_dim -- length of input vector for the decoder
-        decoder_output_dim -- length of output vector for the decoder
+	        Tx -- length of the input sequence
+	        Ty -- length of the output sequence
+	        encoder_input_dim -- length of input vector for the encoder
+	        decoder_input_dim -- length of input vector for the decoder
+	        decoder_output_dim -- length of output vector for the decoder
         """
         self.Tx = Tx
         self.Ty = Ty
@@ -286,10 +286,10 @@ class AttentiveSeq2Seq(HyperModel):
         there will be 1 or 2 such layers in the encoder.
 
         Arguments:
-        hp -- hyperparameters object from keras-tuner
+        	hp -- hyperparameters object from keras-tuner
 
         Returns:
-        model -- Keras model instance
+        	model -- Keras model instance
         """
 
         # ------------------- SHARED LAYERS ---------------------

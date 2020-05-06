@@ -12,7 +12,7 @@ class LossPrintingCallback(tf.keras.callbacks.Callback):
         Prints the average of the train and validation losses of the output units 
         (in an attentive architecture).
         """
-        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]\tepoch: {epoch}\tloss: {round(logs["loss"]/self.Ty, 4)}\tval_loss: {round(logs["val_loss"]/self.Ty, 4)}')            
+        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]\tepoch: {epoch}\tloss: {round(logs["loss"]/self.Ty, 5)}\tval_loss: {round(logs["val_loss"]/self.Ty, 5)}')            
 
 
 def masked_mse(y_true, y_pred):

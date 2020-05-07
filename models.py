@@ -82,9 +82,10 @@ class StandardSeq2Seq(HyperModel):
         
         # This hyperparameter determines whether we should stack two LSTM layers
         if hp.Boolean('stacked'):
-            # This hyperparameter determines whether the first layer should be bidirectional
-            encoder_lstm_1 = hp.Choice('bidirectional', [encoder_lstm_1, 
-                                                         Bidirectional(encoder_lstm_1)])
+            # This hyperparameter determines whether the first layer is bidirectional
+            if hp.Boolean('bidirectional'):
+                encoder_lstm_1 = Bidirectional(encoder_lstm_1)
+
             x = encoder_lstm_1(x)
             x = seq_dropout(x)
         

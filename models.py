@@ -102,7 +102,7 @@ class StandardSeq2Seq(HyperModel):
                       outputs=decoder_outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', min_value=1e-4, 
                                                 max_value=1e-2, sampling='log'))
-        model.compile(optimizer=optimizer, loss=masked_mse)
+        model.compile(optimizer=optimizer, loss='mse')
 
         return model
         
@@ -275,5 +275,5 @@ class AttentiveSeq2Seq(HyperModel):
         model = Model(inputs=[encoder_inputs, decoder_inputs], outputs=outputs)
         optimizer = Adam(learning_rate=hp.Float('learning_rate', min_value=1e-4, 
                                                 max_value=1e-2, sampling='log'))
-        model.compile(optimizer=optimizer, loss=attention_masked_mse)
+        model.compile(optimizer=optimizer, loss='mse')
         return model    

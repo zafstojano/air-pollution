@@ -11,7 +11,9 @@ class LossPrintingCallback(tf.keras.callbacks.Callback):
         """
         Prints the average train and val losses (in an attentive architecture).
         """
-        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]\tepoch: {epoch}\tloss: {round(logs["loss"]/self.Ty, 5)}\tval_loss: {round(logs["val_loss"]/self.Ty, 5)}')            
+        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]\t' + 
+              f'epoch: {epoch}\tloss: {round(logs["loss"], 5)}\tval_loss:'+ 
+              f'{round(logs["val_loss"], 5)}')            
 
 
 def softmax(x, axis=1):

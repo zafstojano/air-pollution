@@ -45,10 +45,6 @@ class StandardSeq2Seq(HyperModel):
         """
         Builds a standard seq2seq LSTM model. A hyperparameter determines 
         whether there will be 1 or 2 LSTM layers in the encoder.
-        The second LSTM layer in the encoder is never Bidirectional, since the
-        state is sent to the decoder LSTM layer, which has the same latent dim.
-        A hyperparameter determines whether the first layer in the encoder 
-        is Bidirectional.
 
         Arguments:
             hp -- hyperparameters object from keras-tuner
@@ -58,7 +54,7 @@ class StandardSeq2Seq(HyperModel):
         """
         
         # ------------------- SHARED LAYERS ---------------------
-        latent_dim = hp.Int('latent_dim', min_value=32, max_value=64, step=16)
+        latent_dim = hp.Int('latent_dim', min_value=32, max_value=128, step=32)
         
         encoder_lstm_1 = LSTM(latent_dim, return_sequences=True, 
                               name='encoder_lstm_1')
@@ -82,10 +78,6 @@ class StandardSeq2Seq(HyperModel):
         
         # This hyperparameter determines whether we should stack two LSTM layers
         if hp.Boolean('stacked'):
-            # This hyperparameter determines whether the first layer is bidirectional
-            if hp.Boolean('bidirectional'):
-                encoder_lstm_1 = Bidirectional(encoder_lstm_1)
-
             x = encoder_lstm_1(x)
             x = seq_dropout(x)
         
@@ -178,9 +170,10 @@ class AttentiveSeq2Seq(HyperModel):
         """
 
         # ------------------- SHARED LAYERS ---------------------
-        encoder_latent_dim = hp.Int('encoder_latent_dim', min_value=32, max_value=64, 
-                                    step=16)
-        decoder_latent_dim = 2 * encoder_latent_dim
+        encoder_latent_dim = hp.Int('encoder_latent_dim', min_value=32, max_value=128, 
+                                    step=32)
+        decoder_latent_dim = hp.Int('decoder_latent_dim', min_value=32, max_value=128, 
+                                    step=32)
         attention_dense_dim = hp.Int('attention_dense_dim', min_value=8, max_value=14, 
                                      step=2)
 
@@ -206,7 +199,7 @@ class AttentiveSeq2Seq(HyperModel):
         decoder_dense = Dense(self.decoder_output_dim, activation='linear',
                               name='decoder_dense')
 
-        seq_dropout = Dropout(rate=hp.Float('seq_dropout', min_value=0, max_value=0.5, 
+        seq_dropout = Dropout(rate=hp.Float('seq_dropout', min_value=0.2, max_value=0.7, 
                                             step=0.1))
         dense_dropout = Dropout(rate=hp.Float('dense_dropout', min_value=0, max_value=0.5, 
                                                step=0.1))
@@ -217,10 +210,10 @@ class AttentiveSeq2Seq(HyperModel):
 
         x = encoder_inputs
 
-        # This hyperparameter determines whether we should stack two BiLSTM layers
-        if hp.Boolean('stacked'):
-            x = encoder_lstm_1(x)
-            x = seq_dropout(x)
+        # # This hyperparameter determines whether we should stack two BiLSTM layers
+        # if hp.Boolean('stacked'):
+        #     x = encoder_lstm_1(x)
+        #     x = seq_dropout(x)
 
         x = encoder_lstm_2(x)
         encoder_outputs = seq_dropout(x)

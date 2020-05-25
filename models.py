@@ -76,10 +76,10 @@ class StandardSeq2Seq(HyperModel):
 
         x = encoder_inputs
         
-        # This hyperparameter determines whether we should stack two LSTM layers
-        if hp.Boolean('stacked'):
-            x = encoder_lstm_1(x)
-            x = seq_dropout(x)
+#         # This hyperparameter determines whether we should stack two LSTM layers
+#         if hp.Boolean('stacked'):
+#             x = encoder_lstm_1(x)
+#             x = seq_dropout(x)
         
         # Obtain the hidden states of the encoder
         _, h, c = encoder_lstm_2(x)

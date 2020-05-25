@@ -1,5 +1,6 @@
 import tensorflow.keras.backend as K
 import tensorflow as tf
+import numpy as np
 from datetime import datetime
 
 
@@ -35,4 +36,10 @@ def softmax(x, axis=1):
         return e / s
     else:
         raise ValueError('Cannot apply softmax to a tensor that is 1D')
-    
+        
+
+def format_model_output(y_pred):
+    y_pred = np.array(y_pred)
+    y_pred = np.swapaxes(y_pred, 0, 1)
+    y_pred = y_pred.flatten()
+    return y_pred    

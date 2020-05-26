@@ -66,9 +66,9 @@ class StandardSeq2Seq(HyperModel):
                               activation='linear', name='decoder_dense')
         
         seq_dropout = Dropout(rate=hp.Float('seq_dropout', min_value=0, max_value=0.5, 
-                                            step=0.1))
+                                            step=0.1), name='seq_dropout')
         dense_dropout = Dropout(rate=hp.Float('dense_dropout', min_value=0, max_value=0.5, 
-                                              step=0.1))
+                                              step=0.1), name='dense_dropout')
 
         # ---------------------- MODEL ------------------------
         encoder_inputs = Input(shape=(self.Tx, self.encoder_input_dim), 
@@ -190,7 +190,7 @@ class AttentiveSeq2Seq(HyperModel):
                                   name='attention_dense_1')
         attention_dense_2 = Dense(1, activation='relu', name='attention_dense_2')
         attention_activation = Activation(softmax, name='attention_activation') 
-        attention_dot = Dot(axes=1)
+        attention_dot = Dot(axes=1, name='attention_dot')
 
         # Decoder layers
         decoder_concatenate = Concatenate(axis=-1, name='decoder_concatenate')
@@ -200,9 +200,9 @@ class AttentiveSeq2Seq(HyperModel):
                               name='decoder_dense')
 
         seq_dropout = Dropout(rate=hp.Float('seq_dropout', min_value=0.2, max_value=0.7, 
-                                            step=0.1))
+                                            step=0.1), name='seq_dropout')
         dense_dropout = Dropout(rate=hp.Float('dense_dropout', min_value=0, max_value=0.5, 
-                                               step=0.1))
+                                               step=0.1), name='dense_dropout')
 
         # ---------------------- MODEL ------------------------
         encoder_inputs = Input(shape=(self.Tx, self.encoder_input_dim), 

@@ -2,7 +2,7 @@ import tensorflow.keras.backend as K
 import tensorflow as tf
 import numpy as np
 from datetime import datetime
-
+import os
 
 class LossPrintingCallback(tf.keras.callbacks.Callback):
     def __init__(self, Ty):
@@ -42,4 +42,18 @@ def format_model_output(y_pred):
     y_pred = np.array(y_pred)
     y_pred = np.swapaxes(y_pred, 0, 1)
     y_pred = y_pred.flatten()
-    return y_pred    
+    return y_pred
+
+
+def generate_folder_structure():
+    if not os.path.exists('./checkpoints/attentive'):
+        os.makedirs('./checkpoints/attentive')
+
+    if not os.path.exists('./checkpoints/standard'):
+        os.makedirs('./checkpoints/standard') 
+
+    if not os.path.exists('./histories/attentive'):
+        os.makedirs('./histories/attentive')
+
+    if not os.path.exists('./histories/standard'):
+        os.makedirs('./histories/standard') 

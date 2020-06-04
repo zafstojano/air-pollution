@@ -46,14 +46,10 @@ def format_model_output(y_pred):
 
 
 def generate_folder_structure():
-    if not os.path.exists('./checkpoints/attentive'):
-        os.makedirs('./checkpoints/attentive')
+    for folder_type in ['checkpoints', 'histories']:
+        for sensor in ['Centar', 'Karpos', 'Lisice', 'Rektorat', 'Miladinovci']:
+            for model_type in ['standard', 'attentive']:
+                folder_path = f'./{folder_type}/{sensor}/{model_type}'
+                if not os.path.exists(folder_path):
+                    os.makedirs(folder_path)
 
-    if not os.path.exists('./checkpoints/standard'):
-        os.makedirs('./checkpoints/standard') 
-
-    if not os.path.exists('./histories/attentive'):
-        os.makedirs('./histories/attentive')
-
-    if not os.path.exists('./histories/standard'):
-        os.makedirs('./histories/standard') 

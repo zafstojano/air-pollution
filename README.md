@@ -292,8 +292,9 @@ The models were trained on several GPUs offered by Google Colab. As to save time
 <p align="center">
   <img src="./img/attentive-architecture.jpg">
   <span>Figure 12. Attentive architecture</span>
-</p>
-In order to find the best hyperparameters for both architectures, a random search was performed. The hyperparameter ranges were based on [*Klaus et al. (2015). LSTM: A search space odyssey*] and empirical research. Moreover, the ranges were constantly updated based on the top 10 performing models for each architecture in order to narrow down the search space. 
+</p>  
+
+<span>In order to find the best hyperparameters for both architectures, a random search was performed. The hyperparameter ranges were based on [<em>Klaus et al. (2015). LSTM: A search space odyssey</em>] and empirical research. Moreover, the ranges were constantly updated based on the top 10 performing models for each architecture in order to narrow down the search space. </span>
 
 ## 7. Results  
 The best models from the two architectures were evaluated on the test sets using the following metrics: RMSE and R<sup>2</sup>. RMSE is a metric that indicates how much the predictions differ from the true values. On the other hand R<sup>2</sup> indicates what proportion of the variance of the dependent variable is predicted by the model. A model that predicts the mean only (without taking into account the inputs) will have R<sup>2</sup>=0, while a model that perfectly predicts the target values will have R<sup>2</sup>=1. When using non-linear models, it is also possible that R<sup>2</sup>&lt;0. In this case, predicting the mean will yield better results.  
